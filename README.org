@@ -1,0 +1,6 @@
+* Zenyatta
+  Purescript meditation timer.
+** TODOS
+*** TODO shake build process
+*** TODO vendor compiler if possible
+*** TODO vendor pulp
