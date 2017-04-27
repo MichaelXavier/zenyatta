@@ -12,6 +12,7 @@ import Control.Monad.Aff.AVar (AVAR)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Eff.Exception (EXCEPTION)
+import Control.Monad.Eff.Now (NOW, nowDateTime)
 import Control.Monad.Eff.Ref (REF)
 import Control.Monad.Eff.Timer (IntervalId, TIMER, clearInterval, setInterval)
 import DOM (DOM)
@@ -21,9 +22,9 @@ import Halogen.VDom.Driver (runUI)
 -------------------------------------------------------------------------------
 
 
-type MyEffects eff = (timer :: TIMER, exception :: EXCEPTION, dom :: DOM, console :: CONSOLE, avar :: AVAR, ref :: REF)
+type MyEffects eff = (timer :: TIMER, exception :: EXCEPTION, dom :: DOM, console :: CONSOLE, avar :: AVAR, ref :: REF, now :: NOW | eff)
 
-main :: Eff ( avar :: AVAR , ref :: REF , exception :: EXCEPTION , dom :: DOM , console :: CONSOLE , timer :: TIMER) Unit
+main :: Eff ( avar :: AVAR , ref :: REF , exception :: EXCEPTION , dom :: DOM , console :: CONSOLE , timer :: TIMER, now :: NOW) Unit
 main = HA.runHalogenAff do
   body <- HA.awaitBody
   io <- runUI component unit body
@@ -75,7 +76,8 @@ eval (ChangeMessage newMsg next) = do
   pure next
 eval (Tick next) = do
   H.liftEff (log "our tick")
-  pure next
+  now <- H.liftEff nowDateTime
+  eval (ChangeMessage (show now) next)
 eval (Initialize next) = do
   -- app.query (action Tick)
   --H.action Tick
