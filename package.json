@@ -1,0 +1,18 @@
+{
+  "name": "zenyatta",
+  "version": "1.0.0",
+  "description": "* Zenyatta   Purescript meditation timer. ** TODOS *** TODO shake build process *** TODO vendor compiler if possible *** TODO vendor pulp",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "pulp": "^11.0.0",
+    "uglify-js": "^2.8.22"
+  }
+}
