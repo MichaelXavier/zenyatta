@@ -8,6 +8,7 @@
 -------------------------------------------------------------------------------
 import           Development.Shake
 import           Development.Shake.FilePath
+import Debug.Trace
 -------------------------------------------------------------------------------
 
 
@@ -34,7 +35,7 @@ main = shakeArgs shakeOptions $ do
   "dist/main.js" %> \out -> do
     needDirs ["node_modules"]
     need ["bower.json"]
-    need =<< getDirectoryFiles "" ["/*.purs"]
+    need =<< getDirectoryFiles "" ["**/*.purs"]
     cmd pulpPath [
         "browserify"
       , "--optimise"

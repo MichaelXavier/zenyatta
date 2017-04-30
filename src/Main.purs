@@ -84,7 +84,7 @@ initialState = {
   , timerState: Stopped
   }
   where
-    defDuration = Seconds (10.0 :: Number)
+    defDuration = Seconds (3.0 :: Number)
 
 
 render :: State -> H.ComponentHTML Query
@@ -95,21 +95,28 @@ render s = HH.div_ $
     --TODO: is there new tech for destructuring newtypes?
     remaining = case s.remaining of Remaining t -> show t
     duration = show s.duration
+    --TODO: is this a rounding error?
+    --atEnd = s.remaining == zero
+    atEnd = s.remaining < one
+    atStart = remaining == duration
+    startButton = HH.button [HE.onClick (HE.input_ StartTimer)]
+      [ HH.text "Start"
+      ]
+    resetButton = HH.button [HE.onClick (HE.input_ ResetTimer)]
+      [ HH.text "Reset"
+      ]
+    stopButton = HH.button [HE.onClick (HE.input_ StopTimer)]
+      [ HH.text "Stop"
+      ]
     buttons = case s.timerState of
       --TODO: reset
-      Stopped -> [
-          HH.button [HE.onClick (HE.input_ StartTimer)]
-           [ HH.text "Start"
-           ]
-        , HH.button [HE.onClick (HE.input_ ResetTimer)]
-           [ HH.text "Reset"
-           ]
-        ]
-      Started -> [
-          HH.button [HE.onClick (HE.input_ StopTimer)]
-           [ HH.text "Stop"
-            ]
-        ]
+      Stopped
+        | atEnd -> [resetButton]
+        | atStart -> [startButton]
+        | otherwise -> [startButton, resetButton]
+      Started
+        | atEnd -> []
+        | otherwise -> [stopButton]
 
 
 countdown :: Remaining Seconds -> Remaining Seconds
