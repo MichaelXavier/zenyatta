@@ -62,8 +62,7 @@ data TimerState = Stopped | Started
 
 type Input = Unit
 
-type Message = String
-
+type Message = Unit
 
 
 data Query a = SetInterval IntervalId a
@@ -75,6 +74,7 @@ data Query a = SetInterval IntervalId a
              | ResetTimer a
 
 
+-------------------------------------------------------------------------------
 --TODO: set remaining
 initialState :: State
 initialState = {
@@ -87,11 +87,16 @@ initialState = {
     defDuration = Seconds (3.0 :: Number)
 
 
+-------------------------------------------------------------------------------
 render :: State -> H.ComponentHTML Query
-render s = HH.div_ $
-  [ HH.text (remaining <> "/" <> duration)
-  ] <> buttons
+render s = HH.div_ $ [
+    message
+  , buttons
+  ]
   where
+    message = HH.div_ [
+        HH.text (remaining <> "/" <> duration)
+      ]
     --TODO: is there new tech for destructuring newtypes?
     remaining = case s.remaining of Remaining t -> show t
     duration = show s.duration
@@ -108,7 +113,7 @@ render s = HH.div_ $
     stopButton = HH.button [HE.onClick (HE.input_ StopTimer)]
       [ HH.text "Stop"
       ]
-    buttons = case s.timerState of
+    buttons = HH.div_ $ case s.timerState of
       --TODO: reset
       Stopped
         | atEnd -> [resetButton]
@@ -119,10 +124,12 @@ render s = HH.div_ $
         | otherwise -> [stopButton]
 
 
+-------------------------------------------------------------------------------
 countdown :: Remaining Seconds -> Remaining Seconds
 countdown r = fromMaybe (Remaining zero) (pred r)
 
 
+-------------------------------------------------------------------------------
 eval :: forall eff. Query ~> H.ComponentDSL State Query Message (Aff (Effs eff))
 eval (ResetTimer next) = do
   H.modify (\s -> s { timerState = Stopped, remaining = Remaining s.duration})
@@ -165,7 +172,6 @@ eval (Initialize next) = do
         Nothing -> Just (Tick Listening)
 
   H.subscribe (H.eventSource register hmm) -- i guess we use Done on finalize?
-
   --TODO: kick off a timer
   pure next
 eval (Finalize next) = do
