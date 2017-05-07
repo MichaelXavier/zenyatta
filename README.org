@@ -1,6 +1,12 @@
 * Zenyatta
   Purescript meditation timer.
 ** TODOS
-*** TODO shake build process
-*** TODO vendor compiler if possible
-*** TODO vendor pulp
+*** DONE shake build process
+    CLOSED: [2017-04-30 Sun 16:09]
+*** DONE vendor compiler if possible
+    CLOSED: [2017-04-30 Sun 16:09]
+*** DONE vendor pulp
+    CLOSED: [2017-04-30 Sun 16:09]
+*** TODO add periodic chime
+*** TODO try out purescript-pkg
+*** TODO try out purity
