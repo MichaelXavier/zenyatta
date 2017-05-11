@@ -76,7 +76,7 @@ type State = { duration :: Editable Seconds
              , remaining :: Remaining Seconds
              , interval :: Maybe IntervalId
              , timerState :: TimerState
-             , soundEvery :: Maybe Seconds
+             , soundEvery :: Seconds
              }
 
 data TimerState = Stopped | Started
@@ -88,6 +88,7 @@ type Message = Unit
 
 data Query a = SetInterval IntervalId a
              | Tick a
+             | Sound a
              | Initialize a
              | Finalize a
              | StartTimer a
@@ -120,10 +121,10 @@ initialState = {
   , remaining: Remaining defDuration
   , duration: NotEditing defDuration
   , timerState: Stopped
-  , soundEvery: Nothing
+  , soundEvery: Seconds 2.0
   }
   where
-    defDuration = Seconds (3.0 :: Number)
+    defDuration = Seconds (6.0 :: Number)
 
 
 -------------------------------------------------------------------------------
@@ -154,6 +155,7 @@ render s = HH.div_ [
         HH.text (remainingString <> "/")
         --TODO: conditional link when stopped
       , durationView
+      , HH.text (" sounding every " <> soundingString <> "s")
       ]
     --TODO: routing probably?
     durationView
@@ -164,6 +166,7 @@ render s = HH.div_ [
     --TODO: is there new tech for destructuring newtypes?
     remaining = case s.remaining of Remaining t -> t
     remainingString = review secondsString remaining
+    soundingString = review secondsString s.soundEvery
     duration = getEditable s.duration
     durationString = review secondsString duration
     atEnd = s.remaining < one
@@ -242,15 +245,21 @@ eval (SetInterval interval next) = do
 eval (Tick next) = do
   H.liftEff (log "our tick")
   timerState <- H.gets (_.timerState)
+  soundEvery <- H.gets (_.soundEvery)
   case timerState of
     --TODO: there may be a cleaner way to do this
     Started -> do
       H.modify (\s -> s { remaining = countdown s.remaining})
-      remaining <- H.gets _.remaining
+      remaining@Remaining rsec <- H.gets _.remaining
       when (remaining == zero) (H.modify (_ { timerState = Stopped}))
-    Stopped -> pure unit
+      --TODO: how do you emit actions immediately? is this the way to do it?
+      if ((sint rsec) `mod` (sint soundEvery) == 0)
+         then eval (Sound next)
+         else pure next
+      -- sound?
+    Stopped -> pure next
   -- count down duration
-  pure next
+  --pure next
 eval (Initialize next) = do
   -- app.query (action Tick)
   --H.action Tick
@@ -260,12 +269,14 @@ eval (Initialize next) = do
         interval <- H.liftEff (setInterval 1000 (tick Nothing))
         tick (Just interval)
   --TODO: rename
-  let hmm mInterval = case mInterval of
+  let cb mInterval = case mInterval of
         Just interval -> Just (SetInterval interval Listening)
         Nothing -> Just (Tick Listening)
 
-  H.subscribe (H.eventSource register hmm) -- i guess we use Done on finalize?
-  --TODO: kick off a timer
+  H.subscribe (H.eventSource register cb) -- i guess we use Done on finalize?
+  pure next
+eval (Sound next) = do
+  H.liftEff (log "bing")
   pure next
 eval (Finalize next) = do
   cancelCurrentInterval
@@ -290,3 +301,8 @@ component =  H.lifecycleComponent
   , initializer: Just (H.action Initialize)
   , finalizer: Nothing
   }
+
+
+-------------------------------------------------------------------------------
+sint :: Seconds -> Int
+sint (Seconds n) = floor n
