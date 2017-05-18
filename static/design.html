@@ -1,0 +1,262 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+     /* reset */
+     html, body, div, span, applet, object, iframe,
+     h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+     a, abbr, acronym, address, big, cite, code,
+     del, dfn, em, img, ins, kbd, q, s, samp,
+     small, strike, strong, sub, sup, tt, var,
+     b, u, i, center,
+     dl, dt, dd, ol, ul, li,
+     fieldset, form, label, legend,
+     table, caption, tbody, tfoot, thead, tr, th, td,
+     article, aside, canvas, details, embed,
+     figure, figcaption, footer, header, hgroup,
+     menu, nav, output, ruby, section, summary,
+     time, mark, audio, video {
+	     margin: 0;
+	     padding: 0;
+	     border: 0;
+	     font-size: 100%;
+	     font: inherit;
+	     vertical-align: baseline;
+     }
+     /* HTML5 display-role reset for older browsers */
+     article, aside, details, figcaption, figure,
+     footer, header, hgroup, menu, nav, section {
+	     display: block;
+     }
+     body {
+	     line-height: 1;
+     }
+     ol, ul {
+	     list-style: none;
+     }
+     blockquote, q {
+	     quotes: none;
+     }
+     blockquote:before, blockquote:after,
+     q:before, q:after {
+	     content: '';
+	     content: none;
+     }
+     table {
+	     border-collapse: collapse;
+	     border-spacing: 0;
+     }
+
+     /* app */
+     .app {
+       display: flex;
+       flex-direction: row;
+       height: 100vh;
+       width: 100vw;
+     }
+
+     .gutter {
+       flex-grow: 1;
+       background-color: red;
+     }
+
+     .main {
+       flex-grow: 8;
+       display: flex;
+       flex-direction: column;
+       background-color: blue;
+     }
+
+     .header {
+       background-color: pink;
+       flex-grow: 1;
+       display: flex;
+       flex-direction: row;
+     }
+
+     .tab-button {
+       cursor: pointer;
+       font-size: 1.3em;
+       flex-grow: 1;
+       text-align: center;
+       display: flex;
+       flex-direction: column;
+       justify-content: center;
+       /* TODO, i think this aligns to text baseline */
+     }
+
+     .tab-button:hover {
+       /*TODO*/
+     }
+
+     /* TODO: material underline instead */
+     .tab-button.active {
+       font-weight: bold;
+     }
+
+     .footer {
+       background-color: green;
+       flex-grow: 1;
+     }
+
+     .content {
+       flex-grow: 8;
+       background-color: white;
+       display: flex;
+       flex-direction: column;
+     }
+
+     .timer-block {
+       flex-grow: 1;
+       flex-direction: row;
+       justify-content: center;
+       display: flex;
+     }
+
+     .timer-title {
+       display: flex;
+       font-size: 20px;
+       font-weight: bold;
+       justify-content: center;
+     }
+
+     .timer {
+       display:flex;
+       flex-direction: column;
+       justify-content: center;
+     }
+
+     .timer .center-block {
+       display: flex;
+       flex-direction: row;
+       justify-content: center;
+     }
+
+     .progress-bar {
+       display: flex;
+       flex-direction: row;
+       border: 3px solid black;
+       height: 30px;
+       margin: 10px 0;
+     }
+
+     .progress-bar-fill {
+       background-color: black;
+     }
+
+     .minutes {
+       display: flex;
+       flex-direction: column;
+     }
+
+     .minutes-control {
+       flex-grow: 1;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       cursor: pointer;
+     }
+
+     .minutes-display {
+       flex-grow: 6;
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       font-size: 10vh;
+     }
+
+     .seconds {
+       display: flex;
+     }
+
+     .seconds-display {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       font-size: 10vh;
+     }
+
+     .chime-timer {
+       flex-grow: 1;
+     }
+
+     .controls {
+       flex-grow: 1;
+       display: flex;
+       flex-direction: row;
+     }
+
+     .control {
+       display: flex;
+       flex-grow: 1;
+       justify-content: center;
+       align-items: center;
+     }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="gutter"></div>
+      <main class="main">
+        <nav class="header">
+          <div class="tab-button active">Timer</div>
+          <div class="tab-button">Logs</div>
+        </nav>
+        <div class="content">
+          <div class="main-timer timer-block">
+            <div class="gutter"></div>
+            <div class="timer">
+              <h1 class="timer-title">Timer</h1>
+              <div class="center-block">
+                <div class="minutes">
+                  <div class="minutes-control">Up</div>
+                  <div class="minutes-display">3</div>
+                  <div class="minutes-control">Down</div>
+                </div>
+                <div class="seconds">
+                  <div class="seconds-display">
+                    :59
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: 75%;"></div>
+              </div>
+            </div>
+            <div class="gutter"></div>
+          </div>
+
+          <div class="chime-timer timer-block">
+            <div class="gutter"></div>
+            <div class="timer">
+              <h1 class="timer-title">Chime</h1>
+              <div class="center-block">
+                <div class="minutes">
+                  <div class="minutes-control">Up</div>
+                  <div class="minutes-display">0</div>
+                  <div class="minutes-control">Down</div>
+                </div>
+                <div class="seconds">
+                  <div class="seconds-display">
+                    :30
+                  </div>
+                </div>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-bar-fill" style="width: 50%;"></div>
+              </div>
+            </div>
+            <div class="gutter"></div>
+          </div>
+
+          <div class="controls">
+            <img src="undo.svg" class="control">
+            <img src="play.svg" class="control">
+          </div>
+        </div>
+        <footer class="footer"></footer>
+      </main>
+      <div class="gutter"></div>
+    </div>
+  </body>
+</html>
