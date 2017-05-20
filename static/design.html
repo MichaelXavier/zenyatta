@@ -49,26 +49,27 @@
 
      /* app */
      .app {
+       font-family: "Roboto", sans-serif;
        display: flex;
        flex-direction: row;
        height: 100vh;
        width: 100vw;
+       background-color: #FFFFFF;
      }
 
      .gutter {
        flex-grow: 1;
-       background-color: red;
      }
 
      .main {
        flex-grow: 8;
        display: flex;
        flex-direction: column;
-       background-color: blue;
      }
 
      .header {
-       background-color: pink;
+       background-color: #00BCD4;
+       color: #FFFFFF;
        flex-grow: 1;
        display: flex;
        flex-direction: row;
@@ -101,7 +102,6 @@
 
      .content {
        flex-grow: 8;
-       background-color: white;
        display: flex;
        flex-direction: column;
      }
@@ -115,7 +115,7 @@
 
      .timer-title {
        display: flex;
-       font-size: 20px;
+       font-size: 4vh;
        font-weight: bold;
        justify-content: center;
      }
@@ -124,6 +124,7 @@
        display:flex;
        flex-direction: column;
        justify-content: center;
+       flex-grow: 2;
      }
 
      .timer .center-block {
@@ -194,7 +195,7 @@
      }
 
      .timer .control {
-       height: 3vh;
+       height: 4vh;
      }
 
      /* TODO: credit https://thenounproject.com/chinnaking012/collection/material-basic-ui/?i=1050659 */
@@ -235,7 +236,7 @@
   </head>
   <body>
     <div class="app">
-      <div class="gutter"></div>
+      <!-- <div class="gutter"></div> -->
       <main class="main">
         <nav class="header">
           <div class="tab-button active">Timer</div>
@@ -297,9 +298,9 @@
             <div class="play control"></div>
           </div>
         </div>
-        <footer class="footer"></footer>
+        <!-- <footer class="footer"></footer> -->
       </main>
-      <div class="gutter"></div>
+      <!-- <div class="gutter"></div> -->
     </div>
   </body>
 </html>
