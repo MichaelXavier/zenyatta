@@ -9,4 +9,28 @@
     CLOSED: [2017-04-30 Sun 16:09]
 *** TODO add periodic chime
 *** TODO try out purescript-pkg
-*** TODO try out purity
+    working on it, it doesn't [[https://github.com/bodil/pulp/pull/278][yet]] have first class support from pulp
+
+    there's some suggestions to use psc-package sources to create
+    custom build scripts
+
+    there's also purs bundle?
+
+    https://github.com/Pauan/rollup-plugin-purs
+
+    so pkg build, bundle, browserify?
+
+    this works psc-package build && purs bundle output/Main/index.js
+    --main Main --output output/Main/main.js && browserify --outfile
+    dist/main.js output/Main/main.js && uglifyjs --compress
+    warnings=false --mangle -- dist/main.js > dist/main.min.js
+
+    actually:
+    psc-package build && purs bundle `find output -name '*.js'`
+    --module Main --main Main --output output/index.js
+
+    node_modules/rollup/bin/rollup --config seems to really minimize
+    output. I got a 95b hello world.
+*** DONE try out purity
+    CLOSED: [2017-05-22 Mon 21:11]
+*** TODO look into rollup-plugin-purs

@@ -1,7 +1,7 @@
 {
   "name": "zenyatta",
   "version": "1.0.0",
-  "description": "* Zenyatta   Purescript meditation timer. ** TODOS *** TODO shake build process *** TODO vendor compiler if possible *** TODO vendor pulp",
+  "description": "Progressive web app meditation timer.",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -12,7 +12,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "pulp": "^11.0.0",
-    "uglify-js": "^2.8.22"
+    "uglify-js": "^2.8.22",
+    "rollup": "^0.41.6",
+    "rollup-plugin-purs": "^1.0.35"
   }
 }

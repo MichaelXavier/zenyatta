@@ -1,0 +1,9 @@
+{
+    "name": "zenyatta",
+    "set": "psc-0.11.4",
+    "source": "https://github.com/purescript/package-sets.git",
+    "depends": [
+        "console",
+        "prelude"
+    ]
+}

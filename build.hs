@@ -8,9 +8,7 @@
 -------------------------------------------------------------------------------
 import           Development.Shake
 import           Development.Shake.FilePath
-import Debug.Trace
 -------------------------------------------------------------------------------
-
 
 main :: IO ()
 main = shakeArgs shakeOptions $ do
@@ -19,11 +17,7 @@ main = shakeArgs shakeOptions $ do
     , "dist/main.min.js"
     ]
 
-  dirRule "bower_components" $ do
-    let bowerPath = "node_modules/bower/bin/bower"
-    needDirs ["node_modules"]
-    need ["bower.json"]
-    unit (cmd bowerPath ["update"])
+  --TODO: production build?
 
   dirRule "node_modules" $ do
     need ["package.json"]
@@ -32,15 +26,25 @@ main = shakeArgs shakeOptions $ do
   "dist/index.html" %> \out -> do
     copyFile' "static/index.html" out
 
+  --TODO: since we're not calling bundle, is this doing DCE?
+
+  dirRule ".psc-package" $ do
+    need ["psc-package.json", pscPackagePath]
+    unit (cmd pscPackagePath ["update"])
+
   "dist/main.js" %> \out -> do
-    needDirs ["node_modules"]
-    need ["bower.json"]
-    need =<< getDirectoryFiles "" ["**/*.purs"]
-    cmd pulpPath [
-        "browserify"
-      , "--optimise"
-      , "--to", out
+    needDirs [
+        "node_modules"
+      , ".psc-package"
       ]
+    need [
+        "rollup.config.js"
+      , pscPackagePath
+      ]
+    need =<< getDirectoryFiles "" ["src/**/*.purs"]
+    unit (cmd pscPackagePath ["build"])
+    unit (cmd "node_modules/rollup/bin/rollup" ["--config"])
+
 
   "**/*.min.js" %> \out -> do
      let srcFile = out `replaceExtensions` "js"
@@ -56,7 +60,7 @@ main = shakeArgs shakeOptions $ do
        , srcFile
        ]
   where
-    pulpPath = "node_modules/pulp/index.js"
+    pscPackagePath = "vendor/psc-package/psc-package"
     touch f = unit (cmd "touch" [f])
     needDirs dirs = need [ dir </> ".shake" | dir <- dirs]
     dirRule dir f = dir </> ".shake" %> \out -> do
