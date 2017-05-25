@@ -16,6 +16,7 @@ import Pux as P
 import Pux.DOM.HTML as PH
 import Zenyatta.Prelude
 import Zenyatta.Types as T
+import Zenyatta.Timer as Timer
 import Text.Smolder.Markup (text)
 -------------------------------------------------------------------------------
 
@@ -28,7 +29,8 @@ initialState =
 
 -------------------------------------------------------------------------------
 view :: T.State -> PH.HTML T.Event
-view _ = text "TODO"
+view s@{route: T.TimerR} = Timer.view s
+view s@{route: T.LogsR} = text "TODO: logs"
 
 
 -------------------------------------------------------------------------------
