@@ -6,6 +6,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 -------------------------------------------------------------------------------
+import           Control.Monad
 import           Development.Shake
 import           Development.Shake.FilePath
 -------------------------------------------------------------------------------
@@ -15,7 +16,16 @@ main = shakeArgs shakeOptions $ do
   want [
       "dist/index.html"
     , "dist/main.min.js"
+    , "dist/preact.min.js"
+    , "dist/preact-compat.min.js"
+    , "dist/proptypes.min.js"
     ]
+
+  forM_ [
+     "dist/preact.js"
+   , "dist/preact-compat.js"
+   , "dist/proptypes.js"
+   ] $ \f -> f %> \out -> copyFile' ("static" </> takeFileName f) f
 
   --TODO: production build?
 

@@ -5,6 +5,10 @@ export default {
   dest: "dist/main.js",
   format: "iife",
   sourceMap: true,
+  globals: {
+    "react": "React",
+    "react-dom": "ReactDOM"
+  },
   plugins: [
     purs()
   ]
