@@ -1,6 +1,8 @@
 module Zenyatta.Types
     ( State(..)
+    , TimerState(..)
     , Event(..)
+    , TimerEvent(..)
     , Route(..)
     , routeString
     , Effects
@@ -10,6 +12,7 @@ module Zenyatta.Types
 -------------------------------------------------------------------------------
 import Zenyatta.Prelude
 import Control.Monad.Eff.Exception as EX
+import Data.Time.Duration as TD
 import DOM as DOM
 import DOM.HTML.Types as DOMHT
 import Data.Lens as L
@@ -20,8 +23,15 @@ import Signal.Channel as Channel
 
 type State =
   { route :: Route
+  , timer :: TimerState
   }
 
+
+-------------------------------------------------------------------------------
+type TimerState =
+  { timerTotal :: TD.Seconds
+  , chimeTotal :: TD.Seconds
+  }
 
 -------------------------------------------------------------------------------
 data Route = TimerR
@@ -44,6 +54,16 @@ data Event = NOOP
            | Tick -- ^ Event delivered every second
            | PageView Route
            | Navigate Route (Maybe PE.DOMEvent)
+
+           | TimerEvent TimerEvent
+
+
+-------------------------------------------------------------------------------
+data TimerEvent = PlusTimerMinute
+                | MinusTimerMinute
+
+                | PlusChimeMinute
+                | MinusChimeMinute
 
 
 -------------------------------------------------------------------------------

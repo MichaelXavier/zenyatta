@@ -3,6 +3,7 @@ module Zenyatta.Prelude
   , module Control.Monad.Eff
   , module Control.Monad.Eff.Class
   , module Control.Monad.Eff.Console
+  , module Data.Lens
   , module Data.NonEmpty
   , module Data.Maybe
   , module Data.Monoid
@@ -18,6 +19,7 @@ module Zenyatta.Prelude
 import Control.Monad.Eff
 import Control.Monad.Eff.Class
 import Control.Monad.Eff.Console
+import Data.Lens
 import Data.NonEmpty (NonEmpty(..), (:|))
 import Data.String as String
 import Data.Maybe

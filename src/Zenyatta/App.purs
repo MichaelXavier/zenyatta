@@ -12,6 +12,7 @@ import DOM.Event.Event as DOMEE
 import DOM.HTML as DOMH
 import DOM.HTML.History as DOMHH
 import DOM.HTML.Window as DOMHW
+import Data.Time.Duration as TD
 import Pux as P
 import Pux.DOM.HTML as PH
 import Zenyatta.Prelude
@@ -24,7 +25,13 @@ import Text.Smolder.Markup (text)
 initialState :: T.State
 initialState =
   { route: T.TimerR
+  , timer: ts
   }
+  where
+    ts =
+      { timerTotal: TD.Seconds 300.0
+      , chimeTotal: TD.Seconds 60.0
+      }
 
 
 -------------------------------------------------------------------------------
@@ -46,3 +53,5 @@ foldp (T.Navigate r ev) st =
     DOMHH.pushState (F.toForeign {}) (DOMHH.DocumentTitle "") (DOMHH.URL url) h
     pure (Just (T.PageView r))
   ]
+foldp (T.TimerEvent e) s = Timer.foldp e s
+
