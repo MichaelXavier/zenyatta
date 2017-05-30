@@ -33,4 +33,9 @@
     output. I got a 95b hello world.
 *** DONE try out purity
     CLOSED: [2017-05-22 Mon 21:11]
-*** TODO look into rollup-plugin-purs
+*** DONE look into rollup-plugin-purs
+    CLOSED: [2017-05-28 Sun 09:57]
+*** DONE css
+    CLOSED: [2017-05-29 Mon 20:12]
+    could use clay or purescript-css. gotta figure out how to write
+    the file

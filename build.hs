@@ -11,14 +11,18 @@ import           Development.Shake
 import           Development.Shake.FilePath
 -------------------------------------------------------------------------------
 
+
+--TODO: vendor purescript
 main :: IO ()
 main = shakeArgs shakeOptions $ do
   want [
       "dist/index.html"
     , "dist/main.min.js"
+    , "dist/main.css"
     , "dist/preact.min.js"
     , "dist/preact-compat.min.js"
     , "dist/proptypes.min.js"
+    , "svgs"
     ]
 
   forM_ [
@@ -27,7 +31,9 @@ main = shakeArgs shakeOptions $ do
    , "dist/proptypes.js"
    ] $ \f -> f %> \out -> copyFile' ("static" </> takeFileName f) f
 
-  --TODO: production build?
+  phony "svgs" $ do
+    getDirectoryFiles "static" ["*.svg"] >>= \svgs ->
+      forM_ svgs $ \f -> copyFile' ("static" </> f) ("dist" </> f)
 
   dirRule "node_modules" $ do
     need ["package.json"]
@@ -42,19 +48,37 @@ main = shakeArgs shakeOptions $ do
     need ["psc-package.json", pscPackagePath]
     unit (cmd pscPackagePath ["update"])
 
-  "dist/main.js" %> \out -> do
+  --FIXME: this is too eager
+  phony "build" $ do
     needDirs [
         "node_modules"
       , ".psc-package"
       ]
+    need =<< getDirectoryFiles "" ["src/**/*.purs"]
+    unit (cmd pscPackagePath ["build"])
+
+  "dist/main.js" %> \out -> do
     need [
         "rollup.config.js"
       , pscPackagePath
+      , "build"
       ]
-    need =<< getDirectoryFiles "" ["src/**/*.purs"]
-    unit (cmd pscPackagePath ["build"])
     unit (cmd "node_modules/rollup/bin/rollup" ["--config"])
 
+  "dist/main.css" %> \out -> do
+     need ["build"]
+     Stdout output <- cmd
+       "psc-bundle"
+       [ "--main", "Zenyatta.CSS"
+       , "output/Zenyatta.CSS/index.js"
+       ]
+     command_
+       [ FileStdout out
+       , Stdin output
+       , Cwd "output/Zenyatta.CSS"
+       ]
+       "node"
+       []
 
   "**/*.min.js" %> \out -> do
      let srcFile = out `replaceExtensions` "js"
