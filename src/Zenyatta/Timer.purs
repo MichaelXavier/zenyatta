@@ -80,17 +80,17 @@ view s  = main ! classes ["main"] $ do
               div ! classes ["minutes-control", "control", "plus"]
                  #! onClick (const (T.TimerEvent T.PlusChimeMinute)) $ mempty
               div ! classes ["minutes-display"] $ do
-                text "3"
+                text (show chimeMinutes)
               div ! classes ["minutes-control", "control", "minus"]
                  #! onClick (const (T.TimerEvent T.MinusChimeMinute)) $ mempty
             div ! classes ["seconds"] $ do
               div ! classes ["seconds-control", "control"] $ mempty
               div ! classes ["seconds-display"] $ do
-                text ":59"
+                text (":" <> chimeSecondsPadded)
               div ! classes ["seconds-control", "control"] $ mempty
           div ! classes ["progress-bar"] $ do
             --TODO: could we use purescript-css on the attribute?
-            div ! classes ["progress-bar-fill"] ! style "width: 75%;" $ do
+            div ! classes ["progress-bar-fill"] ! style chimeStyle $ do
               mempty
         div ! classes ["gutter"] $ mempty
 
@@ -112,19 +112,26 @@ view s  = main ! classes ["main"] $ do
               #! PE.onClick (const (T.TimerEvent T.Stop))
               $ mempty
 
-    timerStyle = "width: " <> show totalPct <> "%" -- fromMaybe mempty (CSS.renderedInline (CSS.render (CSS.width (CSS.pct totalPct))))
+    timerStyle = "width: " <> show timerPct <> "%" -- fromMaybe mempty (CSS.renderedInline (CSS.render (CSS.width (CSS.pct totalPct))))
+    timerPct = unwrap ts.timerRemaining / unwrap ts.timerTotal * 100.0
 
-    totalPct = unwrap ts.timerRemaining / unwrap ts.timerTotal * 100.0
-
-    timerRemaining :: Int
     timerRemaining = Int.round (unwrap ts.timerRemaining)
-    timerMinutes :: Int
     timerMinutes = timerRemaining `Prelude.div` 60
-    timerSeconds :: Int
     timerSeconds = timerRemaining `mod` 60
     timerSecondsPadded
       | timerSeconds >= 10 = show timerSeconds
       | otherwise = "0" <> show timerSeconds
+
+    chimeStyle = "width: " <> show chimePct <> "%"
+    chimePct = unwrap ts.chimeRemaining / unwrap ts.chimeTotal * 100.0
+
+    chimeRemaining = Int.round (unwrap ts.chimeRemaining)
+    chimeMinutes = chimeRemaining `Prelude.div` 60
+    chimeSeconds = chimeRemaining `mod` 60
+    chimeSecondsPadded
+      | chimeSeconds >= 10 = show chimeSeconds
+      | otherwise = "0" <> show chimeSeconds
+
     ts = s.timer
 
 -------------------------------------------------------------------------------
