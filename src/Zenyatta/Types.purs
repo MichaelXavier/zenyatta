@@ -78,6 +78,7 @@ data TimerEvent = PlusTimerMinute
 
                 | Start
                 | Stop
+                | Reset
 
 
 -------------------------------------------------------------------------------

@@ -96,7 +96,10 @@ view s  = main ! classes ["main"] $ do
 
     timerControls = do
       div ! classes ["controls"] $ do
-        div ! classes ["undo", "control"] $ mempty
+        div
+          ! classes ["undo", "control"]
+          #! PE.onClick (const (T.TimerEvent T.Reset))
+          $ mempty
         case ts.status of
           T.Stopped ->
             div
@@ -146,14 +149,21 @@ foldp T.MinusChimeMinute s
   | otherwise = P.noEffects s
 foldp T.Tick s@{ timer: ts@{ status: T.Running } } = --TODO: stop when at 0
   let timer = ts
-        { timerRemaining = spy (tickSeconds ts.timerRemaining)
-        , chimeRemaining = spy (tickSeconds ts.chimeRemaining)
+        { timerRemaining = tickSeconds ts.timerRemaining
+        , chimeRemaining = tickSeconds ts.chimeRemaining
         }
       state = s { timer = timer}
-  in trace "yes tick" \_ -> P.noEffects state
-foldp T.Tick s = trace "no tick" \_ -> P.noEffects s
-foldp T.Start s@{timer: ts} = trace "start" \_ -> P.noEffects s { timer = ts { status = T.Running } }
-foldp T.Stop s@{timer: ts} = trace "stop" \_ -> P.noEffects s { timer = ts { status = T.Stopped } }
+  in P.noEffects state
+foldp T.Tick s = P.noEffects s
+foldp T.Start s@{timer: ts} = P.noEffects s { timer = ts { status = T.Running } }
+foldp T.Stop s@{timer: ts} = P.noEffects s { timer = ts { status = T.Stopped } }
+foldp T.Reset s@{timer: ts} =
+  let timer = ts
+        { timerRemaining = ts.timerTotal
+        , chimeRemaining = ts.chimeTotal
+        , status = T.Stopped
+        }
+  in P.noEffects s { timer = timer }
 
 
 -------------------------------------------------------------------------------
