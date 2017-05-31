@@ -157,7 +157,9 @@ foldp T.MinusChimeMinute s
 foldp T.Tick s@{ timer: ts@{ status: T.Running } } = --TODO: stop when at 0
   let timer = ts
         { timerRemaining = tickSeconds ts.timerRemaining
-        , chimeRemaining = tickSeconds ts.chimeRemaining
+        , chimeRemaining = if ts.chimeRemaining > one
+                           then tickSeconds ts.chimeRemaining
+                           else ts.chimeTotal
         }
       state = s { timer = timer}
   in P.noEffects state
