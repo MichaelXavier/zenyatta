@@ -30,7 +30,7 @@ main = do
     { initialState: App.initialState
     , view: App.view
     , foldp: App.foldp
-    , inputs: [Signal.sampleOn (ST.every ST.second) (Signal.constant T.Tick)]
+    , inputs: [Signal.sampleOn (ST.every ST.second) (Signal.constant (T.TimerEvent T.Tick))]
     }
 
   React.renderToDOM "#app" app.markup app.input

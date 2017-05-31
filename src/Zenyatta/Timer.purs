@@ -5,9 +5,12 @@ module Zenyatta.Timer
 
 
 -------------------------------------------------------------------------------
+--FIXME: importing CSS hangs rollup
+--import CSS as CSS
 import Data.Int as Int
 import Data.Time.Duration as TD
 import Pux as P
+import Pux.DOM.Events as PE
 import Pux.DOM.HTML as PH
 import Zenyatta.Prelude as Prelude
 import Zenyatta.Types as T
@@ -63,7 +66,7 @@ view s  = main ! classes ["main"] $ do
               div ! classes ["seconds-control", "control"] $ mempty
           div ! classes ["progress-bar"] $ do
             --TODO: could we use purescript-css on the attribute?
-            div ! classes ["progress-bar-fill"] ! style "width: 75%;" $ mempty
+            div ! classes ["progress-bar-fill"] ! style timerStyle $ mempty
         div ! classes ["gutter"] $ mempty
 
     chimeTimer = do
@@ -94,14 +97,28 @@ view s  = main ! classes ["main"] $ do
     timerControls = do
       div ! classes ["controls"] $ do
         div ! classes ["undo", "control"] $ mempty
-        div ! classes ["play", "control"] $ mempty
+        case ts.status of
+          T.Stopped ->
+            div
+              ! classes ["play", "control"]
+              #! PE.onClick (const (T.TimerEvent T.Start))
+              $ mempty
+          T.Running ->
+            div
+              ! classes ["pause", "control"]
+              #! PE.onClick (const (T.TimerEvent T.Stop))
+              $ mempty
 
-    timerTotal :: Int
-    timerTotal = Int.round (unwrap ts.timerTotal)
+    timerStyle = "width: " <> show totalPct <> "%" -- fromMaybe mempty (CSS.renderedInline (CSS.render (CSS.width (CSS.pct totalPct))))
+
+    totalPct = unwrap ts.timerRemaining / unwrap ts.timerTotal * 100.0
+
+    timerRemaining :: Int
+    timerRemaining = Int.round (unwrap ts.timerRemaining)
     timerMinutes :: Int
-    timerMinutes = timerTotal `Prelude.div` 60
+    timerMinutes = timerRemaining `Prelude.div` 60
     timerSeconds :: Int
-    timerSeconds = timerTotal `mod` 60
+    timerSeconds = timerRemaining `mod` 60
     timerSecondsPadded
       | timerSeconds >= 10 = show timerSeconds
       | otherwise = "0" <> show timerSeconds
@@ -127,8 +144,25 @@ foldp T.MinusChimeMinute s
   | s.timer.chimeTotal > minute = P.noEffects
       s { timer = s.timer { chimeTotal = s.timer.chimeTotal - TD.Seconds 60.0} }
   | otherwise = P.noEffects s
+foldp T.Tick s@{ timer: ts@{ status: T.Running } } = --TODO: stop when at 0
+  let timer = ts
+        { timerRemaining = spy (tickSeconds ts.timerRemaining)
+        , chimeRemaining = spy (tickSeconds ts.chimeRemaining)
+        }
+      state = s { timer = timer}
+  in trace "yes tick" \_ -> P.noEffects state
+foldp T.Tick s = trace "no tick" \_ -> P.noEffects s
+foldp T.Start s@{timer: ts} = trace "start" \_ -> P.noEffects s { timer = ts { status = T.Running } }
+foldp T.Stop s@{timer: ts} = trace "stop" \_ -> P.noEffects s { timer = ts { status = T.Stopped } }
 
 
 -------------------------------------------------------------------------------
 minute :: TD.Seconds
 minute = TD.Seconds 60.0
+
+
+-------------------------------------------------------------------------------
+tickSeconds :: TD.Seconds -> TD.Seconds
+tickSeconds s
+  | s > zero  = s - one
+  | otherwise = s

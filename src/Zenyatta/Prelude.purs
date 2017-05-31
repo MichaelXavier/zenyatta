@@ -10,6 +10,7 @@ module Zenyatta.Prelude
   , module Data.Either
   , module Data.Foldable
   , module Data.Traversable
+  , module Debug.Trace
   , noop
   , classes
   ) where
@@ -27,6 +28,7 @@ import Data.Monoid
 import Data.Either
 import Data.Foldable
 import Data.Traversable
+import Debug.Trace
 import Text.Smolder.Markup as TSM
 import Text.Smolder.HTML.Attributes as TSHA
 import Prelude

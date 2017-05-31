@@ -1,6 +1,7 @@
 module Zenyatta.Types
     ( State(..)
     , TimerState(..)
+    , TimerStatus(..)
     , Event(..)
     , TimerEvent(..)
     , Route(..)
@@ -30,8 +31,17 @@ type State =
 -------------------------------------------------------------------------------
 type TimerState =
   { timerTotal :: TD.Seconds
+  , timerRemaining :: TD.Seconds
   , chimeTotal :: TD.Seconds
+  , chimeRemaining :: TD.Seconds
+  , status :: TimerStatus
   }
+
+
+-------------------------------------------------------------------------------
+data TimerStatus = Stopped
+                 | Running
+
 
 -------------------------------------------------------------------------------
 data Route = TimerR
@@ -51,7 +61,6 @@ routeString = L.prism' toS fromS
 
 -------------------------------------------------------------------------------
 data Event = NOOP
-           | Tick -- ^ Event delivered every second
            | PageView Route
            | Navigate Route (Maybe PE.DOMEvent)
 
@@ -64,6 +73,11 @@ data TimerEvent = PlusTimerMinute
 
                 | PlusChimeMinute
                 | MinusChimeMinute
+
+                | Tick -- ^ Delivered every second
+
+                | Start
+                | Stop
 
 
 -------------------------------------------------------------------------------

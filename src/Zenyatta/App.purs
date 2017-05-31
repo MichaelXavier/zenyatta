@@ -28,9 +28,14 @@ initialState =
   , timer: ts
   }
   where
+    timerTotal = TD.Seconds 300.0
+    chimeTotal = TD.Seconds 60.0
     ts =
-      { timerTotal: TD.Seconds 300.0
-      , chimeTotal: TD.Seconds 60.0
+      { timerTotal
+      , chimeTotal
+      , timerRemaining: timerTotal
+      , chimeRemaining: chimeTotal
+      , status: T.Stopped
       }
 
 
@@ -43,7 +48,6 @@ view s@{route: T.LogsR} = text "TODO: logs"
 -------------------------------------------------------------------------------
 foldp :: T.Event -> T.State -> P.EffModel T.State T.Event (T.Effects ())
 foldp T.NOOP s = P.noEffects s
-foldp T.Tick s = P.noEffects s
 foldp (T.PageView r) s = P.noEffects s { route = r}
 foldp (T.Navigate r ev) st =
   P.onlyEffects st [ liftEff do
