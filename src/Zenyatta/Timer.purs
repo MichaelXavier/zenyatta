@@ -155,14 +155,20 @@ foldp T.MinusChimeMinute s
       s { timer = s.timer { chimeTotal = s.timer.chimeTotal - TD.Seconds 60.0} }
   | otherwise = P.noEffects s
 foldp T.Tick s@{ timer: ts@{ status: T.Running } } = --TODO: stop when at 0
-  let timer = ts
-        { timerRemaining = tickSeconds ts.timerRemaining
-        , chimeRemaining = if ts.chimeRemaining > one
-                           then tickSeconds ts.chimeRemaining
-                           else ts.chimeTotal
+  let timerSeconds = tickSeconds ts.timerRemaining
+      chimeReset = ts.chimeRemaining <= one
+      shouldChime = chimeReset || timerSeconds == zero
+      timer = ts
+        { timerRemaining = timerSeconds
+        , chimeRemaining = if chimeReset
+                           then ts.chimeTotal
+                           else tickSeconds ts.chimeRemaining
         }
       state = s { timer = timer}
-  in P.noEffects state
+      effects
+        | shouldChime = [pure (Just (T.TimerEvent T.Chime))]
+        | otherwise = []
+  in {state, effects}
 foldp T.Tick s = P.noEffects s
 foldp T.Start s@{timer: ts} = P.noEffects s { timer = ts { status = T.Running } }
 foldp T.Stop s@{timer: ts} = P.noEffects s { timer = ts { status = T.Stopped } }
@@ -173,6 +179,10 @@ foldp T.Reset s@{timer: ts} =
         , status = T.Stopped
         }
   in P.noEffects s { timer = timer }
+foldp T.Chime s = P.onlyEffects s [do
+    --TODO: figure out how to play a sound or something
+    pure (trace "chime" $ \_ -> Nothing)
+  ]
 
 
 -------------------------------------------------------------------------------

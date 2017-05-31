@@ -80,6 +80,8 @@ data TimerEvent = PlusTimerMinute
                 | Stop
                 | Reset
 
+                | Chime
+
 
 -------------------------------------------------------------------------------
 type Effects eff =
