@@ -29,7 +29,7 @@ initialState =
   }
   where
     timerTotal = TD.Seconds 300.0
-    chimeTotal = TD.Seconds 60.0
+    chimeTotal = TD.Seconds 10.0 -- 60.0
     ts =
       { timerTotal
       , chimeTotal

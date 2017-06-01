@@ -53,11 +53,11 @@ view s  = main ! classes ["main"] $ do
           div ! classes ["center-block"] $ do
             div ! classes ["minutes"] $ do
               --TODO: disable buttons if running or at minimum
-              div ! classes ["minutes-control", "control", "plus"]
-                 #! onClick (const (T.TimerEvent T.PlusTimerMinute)) $ mempty
+              div ! classes ["minutes-control", "control", if adjustable then "plus" else "disabled"]
+                 #! onClick (const (if adjustable then T.TimerEvent T.PlusTimerMinute else T.NOOP)) $ mempty
               div ! classes ["minutes-display"] $ do
                 text (show timerMinutes)
-              div ! classes ["minutes-control", "control", "minus"]
+              div ! classes ["minutes-control", "control", if adjustable then "minus" else "disabled"]
                  #! onClick (const (T.TimerEvent T.MinusTimerMinute)) $ mempty
             div ! classes ["seconds"] $ do
               div ! classes ["seconds-control", "control"] $ mempty
@@ -77,11 +77,11 @@ view s  = main ! classes ["main"] $ do
             text "Chime"
           div ! classes ["center-block"] $ do
             div ! classes ["minutes"] $ do
-              div ! classes ["minutes-control", "control", "plus"]
+              div ! classes ["minutes-control", "control", if adjustable then "plus" else "disabled"]
                  #! onClick (const (T.TimerEvent T.PlusChimeMinute)) $ mempty
               div ! classes ["minutes-display"] $ do
                 text (show chimeMinutes)
-              div ! classes ["minutes-control", "control", "minus"]
+              div ! classes ["minutes-control", "control", if adjustable then "minus" else "disabled"]
                  #! onClick (const (T.TimerEvent T.MinusChimeMinute)) $ mempty
             div ! classes ["seconds"] $ do
               div ! classes ["seconds-control", "control"] $ mempty
@@ -115,6 +115,11 @@ view s  = main ! classes ["main"] $ do
     timerStyle = "width: " <> show timerPct <> "%" -- fromMaybe mempty (CSS.renderedInline (CSS.render (CSS.width (CSS.pct totalPct))))
     timerPct = unwrap ts.timerRemaining / unwrap ts.timerTotal * 100.0
 
+    addIf true x xs = x:xs
+    addIf false _ xs = xs
+
+    adjustable = ts.status /= T.Running
+
     timerRemaining = Int.round (unwrap ts.timerRemaining)
     timerMinutes = timerRemaining `Prelude.div` 60
     timerSeconds = timerRemaining `mod` 60
@@ -143,17 +148,20 @@ main = parent "main"
 --TODO: once we get profunctor lenses >= 3.2 we can easily use lenses here
 foldp :: T.TimerEvent -> T.State -> P.EffModel T.State T.Event (T.Effects ())
 foldp T.PlusTimerMinute s = P.noEffects
-  s { timer = s.timer { timerTotal = s.timer.timerTotal + TD.Seconds 60.0} }
-foldp T.MinusTimerMinute s
-  | s.timer.timerTotal > minute = P.noEffects
-      s { timer = s.timer { timerTotal = s.timer.timerTotal - TD.Seconds 60.0} }
-  | otherwise = P.noEffects s
+  s { timer = s.timer { timerTotal = s.timer.timerTotal + minute
+                      , timerRemaining = s.timer.timerRemaining + minute} }
+foldp T.MinusTimerMinute s = P.noEffects
+  s { timer = s.timer { timerTotal = minusMinute s.timer.timerTotal
+                      , timerRemaining = minusMinute s.timer.timerRemaining
+                      } }
 foldp T.PlusChimeMinute s = P.noEffects
-  s { timer = s.timer { chimeTotal = s.timer.chimeTotal + TD.Seconds 60.0} }
-foldp T.MinusChimeMinute s
-  | s.timer.chimeTotal > minute = P.noEffects
-      s { timer = s.timer { chimeTotal = s.timer.chimeTotal - TD.Seconds 60.0} }
-  | otherwise = P.noEffects s
+  s { timer = s.timer { chimeTotal = s.timer.chimeTotal + minute
+                      , chimeRemaining = s.timer.chimeRemaining + minute
+                      } }
+foldp T.MinusChimeMinute s = P.noEffects
+  s { timer = s.timer { chimeTotal = minusMinute s.timer.chimeTotal
+                      , chimeRemaining = minusMinute s.timer.chimeRemaining
+                      } }
 foldp T.Tick s@{ timer: ts@{ status: T.Running } } = --TODO: stop when at 0
   let timerSeconds = tickSeconds ts.timerRemaining
       chimeReset = ts.chimeRemaining <= one
@@ -188,6 +196,13 @@ foldp T.Chime s = P.onlyEffects s [do
 -------------------------------------------------------------------------------
 minute :: TD.Seconds
 minute = TD.Seconds 60.0
+
+
+-------------------------------------------------------------------------------
+minusMinute :: TD.Seconds -> TD.Seconds
+minusMinute s
+  | s > minute = s - minute
+  | otherwise = s
 
 
 -------------------------------------------------------------------------------

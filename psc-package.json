@@ -3,6 +3,7 @@
     "set": "master",
     "source": "https://github.com/purescript/package-sets.git",
     "depends": [
+        "generics-rep",
         "debug",
         "css",
         "profunctor-lenses",

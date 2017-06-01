@@ -13,12 +13,14 @@ module Zenyatta.Types
 -------------------------------------------------------------------------------
 import Zenyatta.Prelude
 import Control.Monad.Eff.Exception as EX
-import Data.Time.Duration as TD
 import DOM as DOM
 import DOM.HTML.Types as DOMHT
 import Data.Lens as L
+import Data.Time.Duration as TD
 import Pux.DOM.Events as PE
 import Signal.Channel as Channel
+import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Eq (genericEq)
 -------------------------------------------------------------------------------
 
 
@@ -41,6 +43,10 @@ type TimerState =
 -------------------------------------------------------------------------------
 data TimerStatus = Stopped
                  | Running
+
+
+derive instance genericTimerStatus :: Generic TimerStatus _
+instance eqTimerStatus :: Eq TimerStatus where eq = genericEq
 
 
 -------------------------------------------------------------------------------

@@ -341,3 +341,9 @@ appCSS = do
 
   fromString ".control.play" `with` active ? do
     backgroundImage (BG.url "play-down.svg")
+
+  --TODO: go back to default on control disabled
+
+-------------------------------------------------------------------------------
+opacity :: Number -> CSS
+opacity = key (fromString "opacity")
