@@ -330,6 +330,9 @@ appCSS = do
   fromString ".control.undo" ? do
     backgroundImage (BG.url "undo.svg")
 
+  fromString ".control.ff" ? do
+    backgroundImage (BG.url "ff.svg")
+
   fromString ".control.pause" ? do
     backgroundImage (BG.url "pause.svg")
 

@@ -101,12 +101,18 @@ view s  = main ! classes ["main"] $ do
           #! PE.onClick (const (T.TimerEvent T.Reset))
           $ mempty
         case ts.status of
-          T.Stopped ->
+          T.Stopped -> do
+            div
+              ! classes ["control"]
+              $ mempty
             div
               ! classes ["play", "control"]
               #! PE.onClick (const (T.TimerEvent T.Start))
               $ mempty
-          T.Running ->
+          T.Running -> do
+            div
+              ! classes ["ff", "control"] --TODO: distinguish reset from skip
+              $ mempty
             div
               ! classes ["pause", "control"]
               #! PE.onClick (const (T.TimerEvent T.Stop))
