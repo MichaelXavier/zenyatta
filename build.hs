@@ -22,7 +22,7 @@ main = shakeArgs shakeOptions $ do
     , "dist/preact.min.js"
     , "dist/preact-compat.min.js"
     , "dist/proptypes.min.js"
-    , "svgs"
+    , "media"
     ]
 
   forM_ [
@@ -31,9 +31,9 @@ main = shakeArgs shakeOptions $ do
    , "dist/proptypes.js"
    ] $ \f -> f %> \out -> copyFile' ("static" </> takeFileName f) f
 
-  phony "svgs" $ do
-    getDirectoryFiles "static" ["*.svg"] >>= \svgs ->
-      forM_ svgs $ \f -> copyFile' ("static" </> f) ("dist" </> f)
+  phony "media" $ do
+    getDirectoryFiles "static" ["*.svg", "*.wav"] >>= \fs ->
+      forM_ fs $ \f -> copyFile' ("static" </> f) ("dist" </> f)
 
   dirRule "node_modules" $ do
     need ["package.json"]
@@ -54,7 +54,7 @@ main = shakeArgs shakeOptions $ do
         "node_modules"
       , ".psc-package"
       ]
-    need =<< getDirectoryFiles "" ["src/**/*.purs"]
+    need =<< getDirectoryFiles "" ["src/**/*.purs", "src/**/*.js"]
     unit (cmd pscPackagePath ["build"])
 
   "dist/main.js" %> \out -> do

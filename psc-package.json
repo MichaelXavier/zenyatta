@@ -3,6 +3,8 @@
     "set": "master",
     "source": "https://github.com/purescript/package-sets.git",
     "depends": [
+        "transformers",
+        "dom",
         "generics-rep",
         "debug",
         "css",

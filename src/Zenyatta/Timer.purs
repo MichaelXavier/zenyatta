@@ -7,8 +7,16 @@ module Zenyatta.Timer
 -------------------------------------------------------------------------------
 --FIXME: importing CSS hangs rollup
 --import CSS as CSS
+import Control.Monad.Except.Trans as E
+import Data.Foreign as F
 import Data.Int as Int
 import Data.Time.Duration as TD
+import DOM as DOM
+import DOM.HTML as DOMH
+import DOM.HTML.Types as DOMHT
+import DOM.HTML.Window as DOMHW
+import DOM.Node.ParentNode as DOMNPN
+import DOM.Node.Types as DOMNT
 import Pux as P
 import Pux.DOM.Events as PE
 import Pux.DOM.HTML as PH
@@ -16,10 +24,10 @@ import Zenyatta.Prelude as Prelude
 import Zenyatta.Types as T
 import Data.Newtype (unwrap)
 import Pux.DOM.Events (onClick)
-import Text.Smolder.HTML (div, h1, nav)
-import Text.Smolder.HTML.Attributes (style)
+import Text.Smolder.HTML (audio, div, h1, nav)
+import Text.Smolder.HTML.Attributes (id, preload, src, style)
 import Text.Smolder.Markup (Markup, parent, text, (!), (#!))
-import Zenyatta.Prelude hiding (div)
+import Zenyatta.Prelude hiding (div,id)
 -------------------------------------------------------------------------------
 
 
@@ -29,7 +37,14 @@ view :: T.State -> PH.HTML T.Event
 view s  = main ! classes ["main"] $ do
   header
   content
+  chime
   where
+    chime = do
+      audio
+        ! src "/singing_bowl.wav"
+        ! preload "auto"
+        ! id "chime"
+        $ mempty
     header = do
       nav ! classes ["header"] $ do
         --TODO: active on state
@@ -194,8 +209,8 @@ foldp T.Reset s@{timer: ts} =
         }
   in P.noEffects s { timer = timer }
 foldp T.Chime s = P.onlyEffects s [do
-    --TODO: figure out how to play a sound or something
-    pure (trace "chime" $ \_ -> Nothing)
+    liftEff playChime
+    pure Nothing
   ]
 
 
@@ -216,3 +231,17 @@ tickSeconds :: TD.Seconds -> TD.Seconds
 tickSeconds s
   | s > zero  = s - one
   | otherwise = s
+
+
+-------------------------------------------------------------------------------
+playChime :: forall eff. Eff (dom :: DOM.DOM | eff) Unit
+playChime = do
+  window <- DOMH.window
+  document <- DOMHW.document window
+  mel <- DOMNPN.querySelector (DOMNPN.QuerySelector "#chime") (DOMNT.documentToParentNode (DOMHT.htmlDocumentToDocument document))
+  maybe noop (either (const noop) play <<< unwrap <<< E.runExceptT <<< DOMHT.readHTMLAudioElement <<< F.toForeign) mel
+
+
+-------------------------------------------------------------------------------
+foreign import play :: forall eff. DOMHT.HTMLAudioElement -> Eff (dom :: DOM.DOM | eff) Unit
+
