@@ -48,8 +48,7 @@ main = shakeArgs shakeOptions $ do
     need ["psc-package.json", pscPackagePath]
     unit (cmd pscPackagePath ["update"])
 
-  --FIXME: this is too eager
-  phony "build" $ do
+  dirRule "output" $ do
     needDirs [
         "node_modules"
       , ".psc-package"
@@ -58,15 +57,15 @@ main = shakeArgs shakeOptions $ do
     unit (cmd pscPackagePath ["build"])
 
   "dist/main.js" %> \out -> do
+    needDirs ["output"]
     need [
         "rollup.config.js"
       , pscPackagePath
-      , "build"
       ]
     unit (cmd "node_modules/rollup/bin/rollup" ["--config"])
 
   "dist/main.css" %> \out -> do
-     need ["build"]
+     needDirs ["output"]
      Stdout output <- cmd
        "psc-bundle"
        [ "--main", "Zenyatta.CSS"
