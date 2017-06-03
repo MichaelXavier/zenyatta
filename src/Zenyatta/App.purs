@@ -36,6 +36,7 @@ initialState =
       , timerRemaining: timerTotal
       , chimeRemaining: chimeTotal
       , status: T.Stopped
+      , volume: T.Unmuted
       }
 
 

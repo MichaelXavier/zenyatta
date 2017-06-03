@@ -115,19 +115,27 @@ view s  = main ! classes ["main"] $ do
           ! classes ["undo", "control"]
           #! PE.onClick (const (T.TimerEvent T.Reset))
           $ mempty
+        case ts.volume of
+          T.Muted ->
+            div
+              ! classes ["volume-control", "control", "muted"]
+              #! onClick (const (T.TimerEvent T.Unmute))
+              $ mempty
+          T.Unmuted ->
+            div
+              ! classes ["volume-control", "control", "unmuted"]
+              #! onClick (const (T.TimerEvent T.Mute))
+              $ mempty
+        div
+          ! classes ["ff", "control"] --TODO: distinguish reset from skip
+          $ mempty
         case ts.status of
           T.Stopped -> do
-            div
-              ! classes ["control"]
-              $ mempty
             div
               ! classes ["play", "control"]
               #! PE.onClick (const (T.TimerEvent T.Start))
               $ mempty
           T.Running -> do
-            div
-              ! classes ["ff", "control"] --TODO: distinguish reset from skip
-              $ mempty
             div
               ! classes ["pause", "control"]
               #! PE.onClick (const (T.TimerEvent T.Stop))
@@ -209,9 +217,15 @@ foldp T.Reset s@{timer: ts} =
         }
   in P.noEffects s { timer = timer }
 foldp T.Chime s = P.onlyEffects s [do
-    liftEff playChime
+    case s.timer.volume of
+      T.Muted -> noop
+      T.Unmuted -> liftEff playChime
     pure Nothing
   ]
+foldp T.Mute s@{timer: ts} = P.noEffects
+  s { timer = ts { volume = T.Muted }}
+foldp T.Unmute s@{timer: ts} = P.noEffects
+  s { timer = ts { volume = T.Unmuted }}
 
 
 -------------------------------------------------------------------------------

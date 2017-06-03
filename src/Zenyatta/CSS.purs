@@ -322,6 +322,12 @@ appCSS = do
     backgroundRepeat noRepeat
     backgroundPosition center
 
+  fromString ".control.muted" ? do
+    backgroundImage (BG.url "muted.svg")
+
+  fromString ".control.unmuted" ? do
+    backgroundImage (BG.url "unmuted.svg")
+
   fromString ".control.plus" ? do
     backgroundImage (BG.url "plus.svg")
 

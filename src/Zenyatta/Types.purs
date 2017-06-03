@@ -2,6 +2,7 @@ module Zenyatta.Types
     ( State(..)
     , TimerState(..)
     , TimerStatus(..)
+    , VolumeStatus(..)
     , Event(..)
     , TimerEvent(..)
     , Route(..)
@@ -37,7 +38,13 @@ type TimerState =
   , chimeTotal :: TD.Seconds
   , chimeRemaining :: TD.Seconds
   , status :: TimerStatus
+  , volume :: VolumeStatus
   }
+
+
+-------------------------------------------------------------------------------
+data VolumeStatus = Muted
+                  | Unmuted
 
 
 -------------------------------------------------------------------------------
@@ -87,6 +94,9 @@ data TimerEvent = PlusTimerMinute
                 | Reset
 
                 | Chime
+
+                | Mute
+                | Unmute
 
 
 -------------------------------------------------------------------------------
