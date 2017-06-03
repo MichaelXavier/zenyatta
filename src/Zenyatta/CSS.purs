@@ -225,7 +225,8 @@ appCSS = do
     flexDirection column
     justifyContent center
 
-  --TODO: .tab-button hover
+  fromString ".tab-button.bold" ? do
+    fontWeight bold
 
   fromString ".tab-button" `with` active ? do
     fontWeight bold
