@@ -19,6 +19,7 @@ main = shakeArgs shakeOptions $ do
       "dist/index.html"
     , "dist/main.min.js"
     , "dist/main.css"
+    , "dist/manifest.json"
     , "dist/preact.min.js"
     , "dist/preact-compat.min.js"
     , "dist/proptypes.min.js"
@@ -75,6 +76,21 @@ main = shakeArgs shakeOptions $ do
        [ FileStdout out
        , Stdin output
        , Cwd "output/Zenyatta.CSS"
+       ]
+       "node"
+       []
+
+  "dist/manifest.json" %> \out -> do
+     needDirs ["output"]
+     Stdout output <- cmd
+       "psc-bundle"
+       [ "--main", "Zenyatta.Manifest"
+       , "output/Zenyatta.Manifest/index.js"
+       ]
+     command_
+       [ FileStdout out
+       , Stdin output
+       , Cwd "output/Zenyatta.Manifest"
        ]
        "node"
        []
